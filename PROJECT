@@ -1,0 +1,7 @@
+version: "2"
+domain: meetup.com
+repo: ransomware
+resources:
+- group: talks
+  version: v1
+  kind: Ransomware
