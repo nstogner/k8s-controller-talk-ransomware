@@ -52,7 +52,7 @@ func (r *RansomwareReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		return ctrl.Result{}, errors.Wrap(err, "getting")
 	}
 
-	var zero int64 = 0
+	zero := int64(0)
 	desired := corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      req.NamespacedName.Name,
@@ -61,7 +61,7 @@ func (r *RansomwareReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
 				{
-					Name:  "crazy",
+					Name:  "annoyingbox",
 					Image: "busybox",
 					Command: []string{"sh", "-c",
 						fmt.Sprintf("while true; do echo %q && sleep 1; done", b.Spec.Message)},
