@@ -1,7 +1,7 @@
 apiVersion: talks.meetup.com/v1
 kind: Ransomware
 metadata:
-  name: ransomware-sample
+  name: sample
 spec:
   message: Hahaha
   secretCode: idk

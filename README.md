@@ -2,6 +2,18 @@
 
 A nefarious controller that will keep a nuisance pod running unless a secret code is entered.
 
+```yaml
+apiVersion: talks.meetup.com/v1
+kind: Ransomware
+metadata:
+  name: sample
+spec:
+  message: Hahaha
+  # Wrong code   --> Ensures nuisance pod is running.
+  # Correct code --> Nuisance pod gets removed.
+  secretCode: idk
+```
+
 ## Start-from-scratch Guide
 
 This guide demonstrates how this project was built.
@@ -80,13 +92,13 @@ View created nuisance pod.
 
 ```sh
 kubectl get pods
-kubectl logs -f ransomware_sample  # ctrl-c to exit
+kubectl logs -f sample  # ctrl-c to exit
 ```
 
 Change `.spec.secretCode` to be `password`. The pod should be removed.
 
 ```sh
-kubectl edit ransomware ransomware_sample
+kubectl edit ransomware sample
 kubectl get pods
 ```
 
