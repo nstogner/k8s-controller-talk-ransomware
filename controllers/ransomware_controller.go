@@ -47,9 +47,13 @@ func (r *RansomwareReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 	ctx := context.Background()
 	_ = r.Log.WithValues("ransomware", req.NamespacedName)
 
-	var b talksv1.Ransomware
-	if err := r.Get(ctx, req.NamespacedName, &b); err != nil {
-		return ctrl.Result{}, errors.Wrap(err, "getting")
+	var ran talksv1.Ransomware
+	if err := r.Get(ctx, req.NamespacedName, &ran); err != nil {
+		if apierrors.IsNotFound(err) {
+			// Don't requeue, that will happen when object exists later.
+			return ctrl.Result{}, nil
+		}
+		return ctrl.Result{}, errors.Wrap(err, "getting ransomware")
 	}
 
 	zero := int64(0)
@@ -64,13 +68,13 @@ func (r *RansomwareReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 					Name:  "annoyingbox",
 					Image: "busybox",
 					Command: []string{"sh", "-c",
-						fmt.Sprintf("while true; do echo %q && sleep 1; done", b.Spec.Message)},
+						fmt.Sprintf("while true; do echo %q && sleep 1; done", ran.Spec.Message)},
 				},
 			},
 			TerminationGracePeriodSeconds: &zero,
 		},
 	}
-	if err := controllerutil.SetControllerReference(&b, &desired, r.Scheme); err != nil {
+	if err := controllerutil.SetControllerReference(&ran, &desired, r.Scheme); err != nil {
 		return ctrl.Result{}, errors.Wrap(err, "setting controller reference")
 	}
 
@@ -81,8 +85,7 @@ func (r *RansomwareReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 
 	var found corev1.Pod
 	var podExists bool
-	err := r.Get(ctx, req.NamespacedName, &found)
-	if err == nil {
+	if err := r.Get(ctx, req.NamespacedName, &found); err == nil {
 		podExists = true
 	} else if apierrors.IsNotFound(err) {
 		podExists = false
@@ -90,7 +93,7 @@ func (r *RansomwareReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 		return ctrl.Result{}, errors.Wrap(err, "getting pod")
 	}
 
-	correctCode := b.Spec.SecretCode == "password"
+	correctCode := ran.Spec.SecretCode == "password"
 
 	if !podExists && !correctCode {
 		if err := r.Create(ctx, &desired); err != nil {
