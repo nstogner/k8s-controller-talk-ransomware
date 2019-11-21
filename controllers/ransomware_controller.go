@@ -102,7 +102,7 @@ func (r *RansomwareReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) 
 	}
 
 	if podExists && correctCode {
-		if err := r.Delete(ctx, &found); err != nil {
+		if err := r.Delete(ctx, &found); err != nil && !apierrors.IsNotFound(err) {
 			return ctrl.Result{}, errors.Wrap(err, "deleting pod")
 		}
 	}
